@@ -1,0 +1,56 @@
+01.using System;  
+02.using System.Collections.Generic;  
+03.using System.Text;  
+04.using OpenSURFcs;  
+05.  
+06.class Utils  
+07.{  
+08.    private const float FLT_MAX = 3.402823466e+38F;        /* max value */  
+09.  
+10.    public static List<IPoint>[] getMatches(List<IPoint> ipts1, List<IPoint> ipts2)  
+11.    {  
+12.        double dist;  
+13.        double d1, d2;  
+14.        IPoint match = new IPoint();  
+15.  
+16.        List<IPoint>[] matches = new List<IPoint>[2];  
+17.        matches[0] = new List<IPoint>();  
+18.        matches[1] = new List<IPoint>();  
+19.  
+20.        for (int i = 0; i < ipts1.Count; i++)  
+21.        {  
+22.            d1 = d2 = FLT_MAX;  
+23.  
+24.            for (int j = 0; j < ipts2.Count; j++)  
+25.            {  
+26.                dist = GetDistance(ipts1[i], ipts2[j]);  
+27.  
+28.                if (dist < d1) // if this feature matches better than current best  
+29.                {  
+30.                    d2 = d1;  
+31.                    d1 = dist;  
+32.                    match = ipts2[j];  
+33.                }  
+34.                else if (dist < d2) // this feature matches better than second best  
+35.                {  
+36.                    d2 = dist;  
+37.                }  
+38.            }  
+39.            // If match has a d1:d2 ratio < 0.65 ipoints are a match  
+40.            if (d1 / d2 < 0.77) //‰z¬Match“_‰z­  
+41.            {  
+42.                matches[0].Add(ipts1[i]);  
+43.                matches[1].Add(match);  
+44.            }  
+45.        }  
+46.        return matches;  
+47.    }  
+48.  
+49.    private static  double GetDistance(IPoint ip1, IPoint ip2)  
+50.    {  
+51.        float sum = 0.0f;  
+52.        for (int i = 0; i < 64; ++i)  
+53.            sum += (ip1.descriptor[i] - ip2.descriptor[i]) * (ip1.descriptor[i] - ip2.descriptor[i]);  
+54.        return Math.Sqrt(sum);  
+55.    }  
+56.}  

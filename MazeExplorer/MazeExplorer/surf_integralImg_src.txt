@@ -1,0 +1,50 @@
+01. public static IntegralImage FromImage(Bitmap image)  
+02.  {  
+03.      IntegralImage pic = new IntegralImage(image.Width, image.Height);  
+04.      float rowsum = 0;  
+05./*      for (int y = 0; y < image.Height; y++) 
+06.      { 
+07.          rowsum = 0; 
+08.          for (int x = 0; x < image.Width; x++) 
+09.          { 
+10.              Color c = image.GetPixel(x, y); 
+11.              rowsum += (cR * c.R + cG * c.G + cB * c.B) / 255f; 
+12. 
+13.              // integral image is rowsum + value above    
+14.              if(y==0) 
+15.                  pic[0, x] = rowsum; 
+16.              else 
+17.                  pic[y, x] = rowsum + pic[y - 1, x]; 
+18.          } 
+19.      }*/  
+20.       
+21.      BitmapData dataIn = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);  
+22.        
+23.      unsafe  
+24.      {  
+25.          byte* pIn = (byte*)(dataIn.Scan0.ToPointer());   
+26.          for (int y = 0; y < dataIn.Height; y++)  
+27.          {  
+28.              rowsum = 0;  
+29.              for (int x = 0; x < dataIn.Width; x++)  
+30.              {  
+31.                  int cb = (byte)( pIn[0]);  
+32.                  int cg = (byte)(pIn[1]);  
+33.                  int cr = (byte)(pIn[2]);  
+34.  
+35.                  // 0 1 2‘ã•\“IŽŸ˜¥B G R  
+36.                  rowsum += (cR * cr + cG * cg + cB * cb) / 255f;  
+37.                  // integral image is rowsum + value above     
+38.                  if (y == 0)  
+39.                      pic[0, x] = rowsum;  
+40.                  else  
+41.                      pic[y, x] = rowsum + pic[y - 1, x];  
+42.  
+43.                  pIn += 3;  
+44.              }  
+45.              pIn += dataIn.Stride - dataIn.Width * 3;   
+46.          }  
+47.      }  
+48.      image.UnlockBits(dataIn);   
+49.      return pic;  
+50.  }  
